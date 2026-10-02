@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 mb-5">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-semibold mb-2">
+                <i class="fas fa-shield-alt me-1"></i> Management Portal
+            </span>
+            <h2 class="fw-extrabold text-dark mb-1">Admin Control Panel</h2>
+            <p class="text-muted small mb-0">Oversee restaurant listings, monitor live customer orders, and manage system analytics.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('add_restaurant') }}" class="btn btn-danger rounded-pill px-4 py-2 fw-bold shadow hover-scale">
+                <i class="fas fa-plus me-1"></i> Add New Restaurant
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Overview Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 p-4 bg-gradient-primary text-white position-relative overflow-hidden hover-shadow transition-all">
+                <div class="position-absolute end-0 bottom-0 opacity-10 translate-middle-x mb-n3" style="font-size: 5rem;">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="d-flex justify-content-between align-items-center position-relative z-1">
+                    <div>
+                        <h6 class="text-white-50 small text-uppercase fw-bold mb-1 tracking-wider">Total Restaurants</h6>
+                        <h2 class="fw-extrabold mb-0 display-6">{{ restaurants|length }}</h2>
+                    </div>
+                    <div class="bg-white bg-opacity-25 p-3 rounded-4 backdrop-blur">
+                        <i class="fas fa-store fa-lg text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 p-4 bg-gradient-success text-white position-relative overflow-hidden hover-shadow transition-all">
+                <div class="position-absolute end-0 bottom-0 opacity-10 translate-middle-x mb-n3" style="font-size: 5rem;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="d-flex justify-content-between align-items-center position-relative z-1">
+                    <div>
+                        <h6 class="text-white-50 small text-uppercase fw-bold mb-1 tracking-wider">Total Orders Received</h6>
+                        <h2 class="fw-extrabold mb-0 display-6">{{ orders|length }}</h2>
+                    </div>
+                    <div class="bg-white bg-opacity-25 p-3 rounded-4 backdrop-blur">
+                        <i class="fas fa-clipboard-list fa-lg text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 p-4 bg-gradient-dark text-white position-relative overflow-hidden hover-shadow transition-all">
+                <div class="position-absolute end-0 bottom-0 opacity-10 translate-middle-x mb-n3" style="font-size: 5rem;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="d-flex justify-content-between align-items-center position-relative z-1">
+                    <div>
+                        <h6 class="text-white-50 small text-uppercase fw-bold mb-1 tracking-wider">Registered Users</h6>
+                        <h2 class="fw-extrabold mb-0 display-6">{{ users_count }}</h2>
+                    </div>
+                    <div class="bg-white bg-opacity-25 p-3 rounded-4 backdrop-blur">
+                        <i class="fas fa-users fa-lg text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Orders Management Section -->
+    <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 mb-5 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h4 class="fw-bold text-dark mb-1"><i class="fas fa-tasks text-success me-2"></i>Live Customer Orders</h4>
+                <p class="text-muted small mb-0">Update live tracking states for customer food dispatches</p>
+            </div>
+            <div class="input-group" style="max-width: 280px;">
+                <span class="input-group-text bg-light border-0 rounded-start-pill ps-3 text-muted"><i class="fas fa-search fa-xs"></i></span>
+                <input type="text" id="orderSearch" class="form-control form-control-sm rounded-end-pill bg-light border-0 shadow-none px-3" placeholder="Filter orders..." onkeyup="filterTable('orderSearch', 'ordersTableBody', 0)">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-uppercase fs-7 text-muted">
+                    <tr>
+                        <th class="py-3 rounded-start">Order ID</th>
+                        <th class="py-3">Restaurant</th>
+                        <th class="py-3">Items Summary</th>
+                        <th class="py-3">Delivery Address</th>
+                        <th class="py-3">Total</th>
+                        <th class="py-3">Status</th>
+                        <th class="py-3 text-end rounded-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    {% for order in orders %}
+                    <tr>
+                        <td class="fw-bold text-dark">#{{ order.id }}</td>
+                        <td class="fw-medium text-secondary">{{ order.restaurant.name }}</td>
+                        <td>
+                            <ul class="list-unstyled small mb-0 text-muted">
+                                {% for item in order.items %}
+                                <li><i class="fas fa-circle fa-2xs text-danger me-1"></i> {{ item.name }} <span class="fw-bold text-dark">(x{{ item.quantity }})</span></li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td><small class="text-muted text-truncate d-inline-block" style="max-width: 180px;" title="{{ order.delivery_address }}">{{ order.delivery_address }}</small></td>
+                        <td class="fw-bold text-success">${{ "%.2f"|format(order.total_amount) }}</td>
+                        <td>
+                            <span class="badge px-3 py-2 rounded-pill fw-semibold 
+                                {% if order.status == 'Delivered' %}bg-success bg-opacity-10 text-success border border-success border-opacity-10
+                                {% elif order.status == 'Preparing' %}bg-warning bg-opacity-10 text-warning text-dark border border-warning border-opacity-10
+                                {% elif order.status == 'Out for Delivery' %}bg-info bg-opacity-10 text-info text-dark border border-info border-opacity-10
+                                {% elif order.status == 'Cancelled' %}bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10
+                                {% else %}bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-10{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <form action="{{ url_for('update_order_status', order_id=order.id) }}" method="POST" class="d-flex gap-1 justify-content-end align-items-center">
+                                <select name="status" class="form-select form-select-sm rounded-pill bg-light border-0 shadow-none px-3" style="width: 145px;">
+                                    <option value="Order Placed" {% if order.status == 'Order Placed' %}selected{% endif %}>Order Placed</option>
+                                    <option value="Preparing" {% if order.status == 'Preparing' %}selected{% endif %}>Preparing</option>
+                                    <option value="Out for Delivery" {% if order.status == 'Out for Delivery' %}selected{% endif %}>Out for Delivery</option>
+                                    <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                    <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-dark rounded-pill px-3 fw-semibold shadow-sm">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <div class="py-3">
+                                <i class="fas fa-clipboard-check fa-2x text-muted opacity-50 mb-2"></i>
+                                <p class="mb-0 small fw-medium">No customer orders placed yet.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Restaurant Listings Management Section -->
+    <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h4 class="fw-bold text-dark mb-1"><i class="fas fa-store text-danger me-2"></i>Restaurant Management</h4>
+                <p class="text-muted small mb-0">Modify details or delete inactive restaurant profiles</p>
+            </div>
+            <div class="input-group" style="max-width: 280px;">
+                <span class="input-group-text bg-light border-0 rounded-start-pill ps-3 text-muted"><i class="fas fa-search fa-xs"></i></span>
+                <input type="text" id="restaurantSearch" class="form-control form-control-sm rounded-end-pill bg-light border-0 shadow-none px-3" placeholder="Filter restaurants..." onkeyup="filterCards('restaurantSearch', 'restaurantCardCol')">
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="restaurantGridContainer">
+            {% for restaurant in restaurants %}
+            <div class="col restaurantCardCol" data-name="{{ restaurant.name | lower }}" data-city="{{ restaurant.city | lower }}">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-light hover-shadow transition-all">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename=restaurant.image_url) if restaurant.image_url.startswith('uploads/') else (restaurant.image_url if restaurant.image_url else 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500&auto=format&fit=crop&q=60') }}" 
+                             class="card-img-top object-fit-cover" style="height: 160px;" alt="{{ restaurant.name }}">
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-dark bg-opacity-75 backdrop-blur px-2 py-1 rounded-pill small fw-medium text-white">{{ restaurant.cuisine }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column p-4">
+                        <h5 class="fw-bold text-dark mb-1">{{ restaurant.name }}</h5>
+                        <p class="text-muted small mb-3"><i class="fas fa-map-marker-alt text-danger me-1"></i> {{ restaurant.address }}, {{ restaurant.city }}</p>
+                        
+                        <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top border-opacity-10 border-secondary">
+                            <a href="{{ url_for('edit_restaurant', id=restaurant.id) }}" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-semibold">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </a>
+                            <form action="{{ url_for('delete_restaurant', id=restaurant.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this restaurant?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold">
+                                    <i class="fas fa-trash me-1"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Custom Page Styling -->
+<style>
+    .fw-extrabold { font-weight: 800; }
+    .transition-all { transition: all 0.25s ease-in-out; }
+    .hover-shadow:hover { transform: translateY(-3px); box-shadow: 0 1rem 2rem rgba(0,0,0,0.08) !important; }
+    .hover-scale { transition: transform 0.2s ease; }
+    .hover-scale:active { transform: scale(0.98); }
+    .backdrop-blur { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .tracking-wider { letter-spacing: 0.05em; }
+    .bg-gradient-primary { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); }
+    .bg-gradient-success { background: linear-gradient(135deg, #198754 0%, #146c43 100%); }
+    .bg-gradient-dark { background: linear-gradient(135deg, #212529 0%, #121416 100%); }
+</style>
+
+<!-- Live Filtering Script Helpers -->
+<script>
+    function filterTable(inputId, tbodyId, targetColumnIdx) {
+        const query = document.getElementById(inputId).value.toLowerCase();
+        const rows = document.querySelectorAll(`#${tbodyId} tr`);
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    function filterCards(inputId, cardClass) {
+        const query = document.getElementById(inputId).value.toLowerCase();
+        const cards = document.querySelectorAll(`.${cardClass}`);
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            const city = card.getAttribute('data-city');
+            if (name.includes(query) || city.includes(query)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

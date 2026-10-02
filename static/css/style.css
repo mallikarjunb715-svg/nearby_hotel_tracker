@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --brand-primary: #E23744; /* Professional food delivery red */
+    --brand-hover: #C71F2C;
+    --brand-secondary: #198754;
+    --text-main: #1C1C1C;
+    --text-muted: #6C757D;
+    --bg-main: #F8F9FA;
+    --card-bg: #FFFFFF;
+    --border-color: #E9ECEF;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 1rem 2rem rgba(0, 0, 0, 0.08);
+    --transition-base: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Global Styles & Selection */
+body {
+    background-color: var(--bg-main);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+::selection {
+    background-color: var(--brand-primary);
+    color: #FFFFFF;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+    background: #CED4DA;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ADB5BD;
+}
+
+/* Professional Sticky Navbar */
+.navbar {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-base);
+}
+
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text-main) !important;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: var(--brand-primary) !important;
+}
+
+/* High-End Hero Header */
+.hero-section {
+    background: linear-gradient(135deg, #1C1C1C 0%, #2D3033 100%);
+    border-radius: 20px;
+    color: white;
+    padding: 70px 40px;
+    margin-bottom: 40px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(226, 55, 68, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Search Box Container */
+.search-container {
+    background: #FFFFFF;
+    border-radius: 14px;
+    padding: 10px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.search-container .form-control {
+    border: none;
+    box-shadow: none;
+    font-size: 1rem;
+    background: transparent;
+}
+
+.search-container .form-control:focus {
+    box-shadow: none;
+}
+
+/* Modern Restaurant & Content Cards */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: var(--card-bg);
+    overflow: hidden;
+    transition: var(--transition-base);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(0,0,0,0.05);
+}
+
+.card-img-wrapper {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+    background-color: #E9ECEF;
+}
+
+.card-img-top {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.card-title {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--text-main);
+    letter-spacing: -0.3px;
+}
+
+/* Badges & Rating Tags */
+.badge-rating {
+    background-color: #198754;
+    color: white;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 6px rgba(25, 135, 84, 0.2);
+}
+
+/* Buttons & Micro-Interactions */
+.btn {
+    border-radius: 10px;
+    font-weight: 600;
+    transition: var(--transition-base);
+}
+
+.btn-primary {
+    background-color: var(--brand-primary);
+    border: none;
+    padding: 10px 20px;
+    box-shadow: 0 4px 12px rgba(226, 55, 68, 0.25);
+}
+
+.btn-primary:hover {
+    background-color: var(--brand-hover);
+    box-shadow: 0 6px 16px rgba(226, 55, 68, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background-color: var(--text-main);
+    border: none;
+    padding: 10px 20px;
+}
+
+.btn-success:hover {
+    background-color: #333333;
+    transform: translateY(-1px);
+}
+
+.hover-scale {
+    transition: transform 0.2s ease;
+}
+.hover-scale:active {
+    transform: scale(0.97);
+}
+
+/* Utility Classes */
+.fw-extrabold { font-weight: 800; }
+.backdrop-blur { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.tracking-wider { letter-spacing: 0.05em; }
+
+/* Professional Footer */
+footer {
+    background-color: #FFFFFF;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: 40px 0;
+    margin-top: 80px;
+}
+
+footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+footer a:hover {
+    color: var(--brand-primary);
+}

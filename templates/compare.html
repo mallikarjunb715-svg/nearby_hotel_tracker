@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card shadow-sm p-4 mb-4">
+    <h3 class="fw-bold mb-3"><i class="bi bi-sliders me-2 text-danger"></i>Food Price & Location Comparison Engine</h3>
+    <form action="/compare" method="GET" class="row g-3">
+        <div class="col-md-6">
+            <input type="text" name="q" class="form-control form-control-lg" placeholder="Enter dish name (e.g., Chicken Biryani)" value="{{ query }}" required>
+        </div>
+        <div class="col-md-3">
+            <select name="radius" class="form-select form-select-lg">
+                <option value="3">Within 3 km</option>
+                <option value="5" selected>Within 5 km</option>
+                <option value="10">Within 10 km</option>
+                <option value="25">Within 25 km</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold">Compare Now</button>
+        </div>
+    </form>
+</div>
+
+{% if results %}
+<div class="table-responsive bg-white p-3 rounded shadow-sm">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Restaurant</th>
+                <th>Dish</th>
+                <th>Distance</th>
+                <th>Price</th>
+                <th>Rating</th>
+                <th>Recommendation Score</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in results %}
+            <tr>
+                <td class="fw-bold">{{ item.hotel_name }}</td>
+                <td>
+                    <span class="badge {{ 'bg-success' if item.is_veg else 'bg-danger' }} me-1">
+                        {{ 'VEG' if item.is_veg else 'NON-VEG' }}
+                    </span>
+                    {{ item.name }}
+                </td>
+                <td><i class="bi bi-geo-alt text-primary me-1"></i>{{ item.distance }} km</td>
+                <td class="fs-5 fw-bold text-success">₹{{ item.price }}</td>
+                <td><span class="badge bg-warning text-dark"><i class="bi bi-star-fill me-1"></i>{{ "%.1f"|format(item.avg_rating) }} / 10</span></td>
+                <td>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-info text-dark fw-bold" role="progressbar" style="width: {{ item.rec_score }}%;">
+                            {{ item.rec_score }}
+                        </div>
+                    </div>
+                </td>
+                <td><a href="/food/{{ item.id }}" class="btn btn-outline-danger btn-sm">View Item</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% elif query %}
+<div class="alert alert-info">No restaurants found offering "{{ query }}" within the specified distance radius.</div>
+{% endif %}
+{% endblock %}

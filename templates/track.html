@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 mb-5">
+    <!-- Header Section with Live Status & Filter Tabs -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h2 class="fw-extrabold mb-0 text-dark"><i class="fas fa-shipping-fast text-danger me-2"></i>Live Order Tracking</h2>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 rounded-pill small fw-semibold">
+                    <span class="spinner-grow spinner-grow-sm me-1" role="status" style="width: 8px; height: 8px;"></span> Live Sync
+                </span>
+            </div>
+            <p class="text-muted small mb-0">Monitor real-time kitchen progress and active deliveries</p>
+        </div>
+        
+        <!-- Search & Filter Controls -->
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <div class="input-group input-group-sm bg-white rounded-pill px-3 py-1 border shadow-sm" style="width: 220px;">
+                <span class="input-group-text bg-transparent border-0 text-muted ps-0"><i class="fas fa-search"></i></span>
+                <input type="text" id="orderSearch" class="form-control bg-transparent border-0 shadow-none text-dark small" placeholder="Search orders..." onkeyup="filterOrdersBySearch()">
+            </div>
+            <div class="d-flex gap-1 bg-light p-1 rounded-pill border">
+                <button type="button" class="btn btn-sm btn-dark rounded-pill px-3 fw-semibold filter-tab active" onclick="filterOrders('all', this)">All</button>
+                <button type="button" class="btn btn-sm btn-light border-0 rounded-pill px-3 fw-semibold filter-tab text-muted" onclick="filterOrders('active', this)">In Progress</button>
+                <button type="button" class="btn btn-sm btn-light border-0 rounded-pill px-3 fw-semibold filter-tab text-muted" onclick="filterOrders('completed', this)">Delivered</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4" id="ordersContainer">
+        {% for order in orders %}
+        {% set is_active = order.status != 'Delivered' and order.status != 'Cancelled' %}
+        <div class="col-12 order-card-wrapper" data-status="{{ 'active' if is_active else 'completed' }}" data-searchtext="order #{{ order.id }} {{ order.restaurant.name | lower }}">
+            <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5 bg-white transition-all hover-shadow position-relative overflow-hidden">
+                
+                <!-- Status Accent Border Indicator -->
+                <div class="position-absolute top-0 start-0 h-100 {{ 'bg-warning' if is_active else 'bg-success' }}" style="width: 5px;"></div>
+
+                <!-- Card Header -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 border-bottom pb-3 gap-2 ps-2">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <h5 class="fw-bold mb-0 text-dark">Order #{{ order.id }}</h5>
+                            <span class="text-muted">•</span>
+                            <span class="text-danger fw-semibold">{{ order.restaurant.name }}</span>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            <i class="far fa-clock me-1"></i> Placed on: {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        </p>
+                    </div>
+                    <div>
+                        {% if order.status == 'Order Placed' %}
+                            <span class="badge bg-secondary bg-opacity-75 px-3 py-2 rounded-pill fs-6 fw-semibold"><i class="fas fa-receipt me-1"></i> Order Placed</span>
+                        {% elif order.status == 'Preparing' %}
+                            <span class="badge bg-warning bg-opacity-15 text-warning px-3 py-2 rounded-pill fs-6 fw-bold border border-warning border-opacity-25"><i class="fas fa-fire me-1"></i> Preparing Food</span>
+                        {% elif order.status == 'Out for Delivery' %}
+                            <span class="badge bg-info bg-opacity-15 text-info px-3 py-2 rounded-pill fs-6 fw-bold border border-info border-opacity-25"><i class="fas fa-motorcycle me-1"></i> Out for Delivery</span>
+                        {% elif order.status == 'Delivered' %}
+                            <span class="badge bg-success bg-opacity-15 text-success px-3 py-2 rounded-pill fs-6 fw-bold border border-success border-opacity-25"><i class="fas fa-check-circle me-1"></i> Delivered</span>
+                        {% else %}
+                            <span class="badge bg-danger bg-opacity-15 text-danger px-3 py-2 rounded-pill fs-6 fw-bold border border-danger border-opacity-25">{{ order.status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Visual Stepper Progress Bar -->
+                <div class="mb-4 px-2">
+                    <div class="progress rounded-pill bg-light shadow-inner" style="height: 10px;">
+                        {% set progress_val = 25 %}
+                        {% if order.status == 'Preparing' %}{% set progress_val = 50 %}
+                        {% elif order.status == 'Out for Delivery' %}{% set progress_val = 75 %}
+                        {% elif order.status == 'Delivered' %}{% set progress_val = 100 %}
+                        {% elif order.status == 'Cancelled' %}{% set progress_val = 0 %}
+                        {% endif %}
+                        <div class="progress-bar bg-danger bg-gradient progress-bar-striped progress-bar-animated rounded-pill" role="progressbar" style="width: {{ progress_val }}%;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small mt-2 fw-semibold">
+                        <span class="{{ 'text-danger fw-bold' if progress_val >= 25 }}">Placed</span>
+                        <span class="{{ 'text-danger fw-bold' if progress_val >= 50 }}">Preparing</span>
+                        <span class="{{ 'text-danger fw-bold' if progress_val >= 75 }}">On the Way</span>
+                        <span class="{{ 'text-danger fw-bold' if progress_val >= 100 }}">Delivered</span>
+                    </div>
+                </div>
+
+                <!-- Main Order Content Grid -->
+                <div class="row g-4 align-items-center ps-2">
+                    <!-- Left: Items list -->
+                    <div class="col-lg-7">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fas fa-utensils text-danger me-2"></i>Ordered Items:</h6>
+                        <ul class="list-group list-group-flush mb-3 custom-scrollbar pe-2" style="max-height: 180px; overflow-y: auto;">
+                            {% for item in order.items %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-light rounded-3 mb-2 px-3 py-2 border-0">
+                                <span class="fw-semibold text-dark">{{ item.name }} <span class="text-muted small ms-1">x{{ item.quantity }}</span></span>
+                                <span class="fw-bold text-success">${{ "%.2f"|format(item.price * item.quantity) }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Right: Address & Total Breakdown -->
+                    <div class="col-lg-5 border-start-lg ps-lg-4">
+                        <div class="bg-light p-3 rounded-4 border border-opacity-10 mb-3">
+                            <p class="small text-muted mb-1 fw-semibold"><i class="fas fa-map-marker-alt text-danger me-1"></i>Delivery Address:</p>
+                            <p class="small text-dark mb-0 fw-medium">{{ order.delivery_address }}</p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3 px-1">
+                            <span class="text-muted fw-semibold">Total Amount:</span>
+                            <span class="h4 fw-extrabold text-success mb-0">${{ "%.2f"|format(order.total_amount) }}</span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2">
+                            {% if is_active %}
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ order.delivery_address }}" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill w-50 fw-semibold py-2">
+                                    <i class="fas fa-map-marked-alt me-1"></i> Track Driver
+                                </a>
+                                {% if order.status == 'Order Placed' %}
+                                <button type="button" class="btn btn-outline-danger btn-sm rounded-pill w-50 fw-semibold py-2" onclick="cancelOrder({{ order.id }})">
+                                    <i class="fas fa-times-circle me-1"></i> Cancel
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-dark btn-sm rounded-pill w-50 fw-semibold py-2" onclick="contactSupport()">
+                                    <i class="fas fa-headset me-1"></i> Help
+                                </button>
+                                {% endif %}
+                            {% else %}
+                                <a href="{{ url_for('restaurant_detail', restaurant_id=order.restaurant.id) }}" class="btn btn-outline-danger btn-sm rounded-pill w-50 fw-semibold py-2">
+                                    <i class="fas fa-redo me-1"></i> Reorder
+                                </a>
+                                <button type="button" class="btn btn-dark btn-sm rounded-pill w-50 fw-semibold py-2" onclick="contactSupport()">
+                                    <i class="fas fa-star me-1 text-warning"></i> Review
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="card border-0 shadow-lg p-5 rounded-4 bg-white mx-auto" style="max-width: 500px;">
+                <div class="bg-danger bg-opacity-10 text-danger p-4 rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-receipt fa-2x"></i>
+                </div>
+                <h4 class="fw-bold text-dark">No Orders Found</h4>
+                <p class="text-muted small mb-4">You haven't placed any food orders yet. Explore our top-rated restaurants and order something delicious!</p>
+                <a href="{{ url_for('index') }}" class="btn btn-danger rounded-pill px-4 py-3 fw-bold shadow hover-scale">Browse Restaurants</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Support Modal Simulator -->
+<div class="modal fade" id="supportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg p-3">
+            <div class="modal-header border-0">
+                <h5 class="fw-bold text-dark"><i class="fas fa-headset text-danger me-2"></i>Customer Support</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="text-muted mb-3">Need assistance with your order? Our support team is available 24/7.</p>
+                <div class="bg-light p-3 rounded-3 fw-bold text-dark mb-3">📞 Hotline: +1 (800) 555-FOOD</div>
+                <button type="button" class="btn btn-danger rounded-pill px-4 w-100 fw-bold py-2 shadow" data-bs-dismiss="modal">Got it</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- High-End Polish Styles -->
+<style>
+    .fw-extrabold { font-weight: 800; }
+    .transition-all { transition: all 0.25s ease-in-out; }
+    .hover-shadow:hover { transform: translateY(-3px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.08) !important; }
+    .hover-scale { transition: transform 0.2s ease; }
+    .hover-scale:active { transform: scale(0.98); }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+    @media (min-width: 992px) {
+        .border-start-lg { border-left: 1px solid #dee2e6 !important; }
+    }
+</style>
+
+<!-- Advanced Interactive Scripts -->
+<script>
+    function filterOrders(type, btn) {
+        document.querySelectorAll('.filter-tab').forEach(b => {
+            b.classList.remove('btn-dark', 'active');
+            b.classList.add('btn-light', 'text-muted');
+        });
+        btn.classList.remove('btn-light', 'text-muted');
+        btn.classList.add('btn-dark', 'active');
+
+        document.querySelectorAll('.order-card-wrapper').forEach(card => {
+            const status = card.getAttribute('data-status');
+            if (type === 'all' || status === type) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function filterOrdersBySearch() {
+        const query = document.getElementById('orderSearch').value.toLowerCase();
+        document.querySelectorAll('.order-card-wrapper').forEach(card => {
+            const searchText = card.getAttribute('data-searchtext');
+            if (searchText.includes(query)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function cancelOrder(orderId) {
+        if(confirm("Are you sure you want to cancel Order #" + orderId + "?")) {
+            alert("Order #" + orderId + " cancellation request sent.");
+            location.reload();
+        }
+    }
+
+    function contactSupport() {
+        const myModal = new bootstrap.Modal(document.getElementById('supportModal'));
+        myModal.show();
+    }
+</script>
+{% endblock %}

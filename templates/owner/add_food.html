@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 p-4">
+            <h3 class="fw-bold mb-3"><i class="bi bi-plus-square me-2 text-danger"></i>Add Food Item</h3>
+            <form action="/owner/add-food" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Food Name</label>
+                    <input type="text" name="name" class="form-control" required placeholder="e.g. Paneer Butter Masala">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Category</label>
+                    <select name="category_id" class="form-select" required>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Price (₹)</label>
+                    <input type="number" step="0.01" name="price" class="form-control" required placeholder="180.00">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Description</label>
+                    <textarea name="description" class="form-control" rows="3" placeholder="Brief details about ingredients or taste..."></textarea>
+                </div>
+                <div class="form-check mb-4">
+                    <input type="checkbox" name="is_veg" class="form-check-input" id="vegCheck" checked>
+                    <label class="form-check-label fw-bold" for="vegCheck">Vegetarian Item</label>
+                </div>
+                <button type="submit" class="btn btn-danger w-100 fw-bold">Save Food Item</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

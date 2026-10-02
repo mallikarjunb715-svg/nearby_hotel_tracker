@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="bi bi-speedometer2 me-2 text-danger"></i>Owner Dashboard</h2>
+    <a href="/owner/add-food" class="btn btn-danger fw-bold"><i class="bi bi-plus-circle me-1"></i> Add Food Item</a>
+</div>
+
+{% if hotel %}
+<!-- Stats Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white p-3 shadow-sm border-0">
+            <h6 class="text-uppercase small">Total Menu Items</h6>
+            <h2 class="fw-bold mb-0">{{ stats.total_foods }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white p-3 shadow-sm border-0">
+            <h6 class="text-uppercase small">Total Dish Views</h6>
+            <h2 class="fw-bold mb-0">{{ stats.total_views }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark p-3 shadow-sm border-0">
+            <h6 class="text-uppercase small">Average Dish Rating</h6>
+            <h2 class="fw-bold mb-0">{{ "%.1f"|format(stats.avg_rating) }} / 10 ⭐</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Food Menu Table -->
+<div class="card shadow-sm border-0 p-3">
+    <h4 class="fw-bold mb-3">Your Food Items</h4>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Item Name</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Availability</th>
+                    <th>Views</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in foods %}
+                <tr>
+                    <td class="fw-bold">{{ item.name }}</td>
+                    <td>
+                        <span class="badge {{ 'bg-success' if item.is_veg else 'bg-danger' }}">
+                            {{ 'VEG' if item.is_veg else 'NON-VEG' }}
+                        </span>
+                    </td>
+                    <td>₹{{ item.price }}</td>
+                    <td>
+                        {% if item.is_available %}
+                        <span class="badge bg-success">In Stock</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Unavailable</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.views_count }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-3">No food items added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">
+    <h4 class="alert-heading">No Hotel Profile Found!</h4>
+    <p>Please register your hotel details to begin adding menu items.</p>
+</div>
+{% endif %}
+{% endblock %}

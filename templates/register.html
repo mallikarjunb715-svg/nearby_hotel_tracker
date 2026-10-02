@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 my-5">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-6 col-lg-5 col-xl-4">
+            <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5 bg-white position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-danger" style="width: 5px;"></div>
+                
+                <!-- Brand / Header -->
+                <div class="text-center mb-4">
+                    <div class="bg-danger text-white rounded-3 d-inline-flex align-items-center justify-content-center shadow-sm mb-3" style="width: 50px; height: 50px;">
+                        <i class="fas fa-user-plus fs-4"></i>
+                    </div>
+                    <h3 class="fw-extrabold text-dark mb-1">Create Account</h3>
+                    <p class="text-muted small mb-0">Join FoodNearMe to start ordering today</p>
+                </div>
+
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 rounded-start-pill ps-3 text-muted"><i class="fas fa-user fa-sm"></i></span>
+                            <input type="text" name="username" class="form-control rounded-end-pill bg-light border-0 shadow-none px-3 py-2" placeholder="John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 rounded-start-pill ps-3 text-muted"><i class="fas fa-envelope fa-sm"></i></span>
+                            <input type="email" name="email" class="form-control rounded-end-pill bg-light border-0 shadow-none px-3 py-2" placeholder="name@example.com" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold text-muted">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0 rounded-start-pill ps-3 text-muted"><i class="fas fa-lock fa-sm"></i></span>
+                            <input type="password" name="password" id="passwordInput" class="form-control rounded-end-pill bg-light border-0 shadow-none px-3 py-2" placeholder="••••••••" required>
+                            <button type="button" class="btn btn-light border-0 bg-light text-muted px-3 rounded-end-pill shadow-none" onclick="togglePasswordVisibility()">
+                                <i class="fas fa-eye fa-xs" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-2">
+                        <button type="submit" class="btn btn-danger btn-lg rounded-pill py-3 fw-bold shadow hover-scale">
+                            <i class="fas fa-user-check me-2"></i>Register Now
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="text-muted opacity-15 my-4">
+
+                <div class="text-center">
+                    <p class="small text-muted mb-0">Already have an account? <a href="{{ url_for('login') }}" class="text-danger text-decoration-none fw-bold">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Page Styling -->
+<style>
+    .fw-extrabold { font-weight: 800; }
+    .hover-scale { transition: transform 0.2s ease; }
+    .hover-scale:active { transform: scale(0.98); }
+</style>
+
+<!-- Password Visibility Script -->
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('passwordInput');
+        const toggleIcon = document.getElementById('toggleIcon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+</script>
+{% endblock %}

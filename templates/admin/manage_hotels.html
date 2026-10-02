@@ -1,0 +1,36 @@
+<table class="table table-bordered table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Hotel Name</th>
+            <th>City</th>
+            <th>Location Coordinates</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for hotel in hotels %}
+        <tr>
+            <td>{{ hotel.id }}</td>
+            <td><strong>{{ hotel.name }}</strong></td>
+            <td>{{ hotel.city }}</td>
+            <td>
+                {% if hotel.latitude and hotel.longitude %}
+                    <span class="badge bg-success">📍 Lat: {{ hotel.latitude }}, Lng: {{ hotel.longitude }}</span>
+                {% else %}
+                    <span class="badge bg-secondary">No Location Set</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('admin.edit_hotel', hotel_id=hotel.id) }}" class="btn btn-warning btn-sm fw-bold">
+                    ✏️ Edit Hotel Details & Foods
+                </a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" class="text-center text-muted">No hotels registered yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
