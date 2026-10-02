@@ -2,12 +2,30 @@ from flask import Flask, render_template, redirect, url_for, request, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from functools import wraps
+import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'foodnearme_enterprise_secret_key_2026'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///foodnearme.db'
+app.config['SECRET_KEY'] = os.environ.get(
+    'SECRET_KEY',
+    'development-secret-key'
+)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL',
+    'sqlite:///foodnearme.db'
+)
 
 db = SQLAlchemy(app)
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('user_id') is None:
+            flash('Please login first.', 'warning')
+            return redirect(url_for('login'))
+
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 # ==================== DATABASE MODELS ====================
 
@@ -128,6 +146,7 @@ def index():
     return render_template('index.html', restaurants=restaurants)
 
 @app.route('/admin')
+@admin_required
 def admin():
     restaurants = Restaurant.query.all()
     orders = Order.query.order_by(Order.created_at.desc()).all()
@@ -140,6 +159,7 @@ def restaurant_detail(restaurant_id):
     return render_template('restaurant.html', restaurant=restaurant)
 
 @app.route('/add_restaurant', methods=['GET', 'POST'])
+@admin_required
 def add_restaurant():
     if request.method == 'POST':
         name = request.form.get('name')
@@ -168,6 +188,7 @@ def add_restaurant():
     return render_template('add_restaurant.html')
 
 @app.route('/restaurant/<int:id>/edit', methods=['GET', 'POST'])
+@admin_required
 def edit_restaurant(id):
     restaurant = Restaurant.query.get_or_404(id)
     if request.method == 'POST':
@@ -183,6 +204,7 @@ def edit_restaurant(id):
     return render_template('edit_restaurant.html', restaurant=restaurant)
 
 @app.route('/restaurant/<int:id>/delete', methods=['POST'])
+@admin_required
 def delete_restaurant(id):
     restaurant = Restaurant.query.get_or_404(id)
     db.session.delete(restaurant)
@@ -219,6 +241,7 @@ def place_order(restaurant_id):
     return redirect(url_for('restaurant_detail', restaurant_id=restaurant_id))
 
 @app.route('/order/<int:order_id>/update_status', methods=['POST'])
+@admin_required
 def update_order_status(order_id):
     order = Order.query.get_or_404(order_id)
     new_status = request.form.get('status')
@@ -268,8 +291,10 @@ def logout():
     flash('Logged out successfully.', 'info')
     return redirect(url_for('index'))
 
+with app.app_context():
+    db.create_all()
+    seed_database()
+
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        seed_database()
     app.run(debug=True, port=5000)
